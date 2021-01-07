@@ -51,10 +51,13 @@ class CentroidVector(RankingAlgorithm):
             item.get_field(self.item_field).get_representation(self.item_field_representation).value
             for item in rated_items
             if float(ratings[ratings['to_id'] == item.content_id].score) >= self.__threshold]
+        unr =[]
+        for item in unrated_items:
+          item: Content = item
+          if item is not None:
+            unr.append(item.get_field(self.item_field).get_representation(self.item_field_representation).value)
 
-        dicts = positive_rated_items + \
-                [item.get_field(self.item_field).get_representation(
-                    self.item_field_representation).value for item in unrated_items]
+        dicts = positive_rated_items + unr
 
         matrix = dv.fit_transform(dicts)
         return sparse.csr_matrix(matrix.mean(axis=0).getA()), matrix[
@@ -121,7 +124,10 @@ class CentroidVector(RankingAlgorithm):
 
             logger.info("Retrieving rated items")
             rated_items = get_rated_items(items_directory, ratings)
-
+            if len(rated_items) == 0:
+              columns = ["to_id", "rating"]
+              scores = pd.DataFrame(columns=columns)
+              return scores
             first_item = rated_items[0]
             need_vectorizer = False
             if self.item_field not in first_item.field_dict:
@@ -165,6 +171,13 @@ class CentroidVector(RankingAlgorithm):
                 centroid, unrated_matrix = self.__get_centroid_with_vectorizer(ratings, rated_items, unrated_items)
 
                 logger.info("Computing similarities")
+
+                a = []
+                for x in unrated_items:
+                  if x is not None:
+                    a.append(x)
+                unrated_items = a
+
                 for item, item_array in zip(unrated_items, unrated_matrix):
                     item_id = item.content_id
                     logger.info("Computing similarity with %s" % item_id)

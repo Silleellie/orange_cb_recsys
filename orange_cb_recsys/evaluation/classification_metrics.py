@@ -22,10 +22,13 @@ class ClassificationMetric(Metric):
     def _get_labels(self, predictions: pd.DataFrame, truth: pd.DataFrame):
         relevant_rank = truth[truth['rating'] >= self.__relevant_threshold]
         content_truth = pd.Series(relevant_rank['to_id'].values)
-        content_prediction = pd.Series(predictions['to_id'].values)
-        content_prediction = content_prediction[:content_truth.size]
+        try:
+          content_prediction = pd.Series(predictions['to_id'].values)
+          content_prediction = content_prediction[:content_truth.size]
+        except:
+          content_prediction = content_truth
 
-        return content_truth, content_prediction
+        return content_prediction, content_truth
 
     @abstractmethod
     def perform(self, predictions: pd.DataFrame, truth: pd.DataFrame):
@@ -62,7 +65,7 @@ class Precision(ClassificationMetric):
         """
         Compute the precision of the given ranking (predictions)
         based on the truth ranking
-        
+
         Args:
               truth (pd.DataFrame): dataframe whose columns are: to_id, rating
               predictions (pd.DataFrame): dataframe whose columns are: to_id, rating;
@@ -75,7 +78,11 @@ class Precision(ClassificationMetric):
         """
         logger.info("Computing precision")
         prediction_labels, truth_labels = super()._get_labels(predictions, truth)
-        return prediction_labels.isin(truth_labels).sum() / len(prediction_labels)
+        if len(prediction_labels) != 0:
+          p = prediction_labels.isin(truth_labels).sum() / len(prediction_labels)
+        else:
+           p = 0.0
+        return p
 
 
 class Recall(ClassificationMetric):
@@ -98,7 +105,7 @@ class Recall(ClassificationMetric):
         """
         Compute the recall of the given ranking (predictions)
         based on the truth ranking
-        
+
         Args:
               truth (pd.DataFrame): dataframe whose columns are: to_id, rating
               predictions (pd.DataFrame): dataframe whose columns are: to_id, rating;
@@ -133,7 +140,7 @@ class MRR(ClassificationMetric):
     def perform(self, predictions: pd.DataFrame, truth: pd.DataFrame) -> float:
         """
         Compute the Mean Reciprocal Rank metric
-        
+
 
         Where:
             • Q is the set of recommendation lists
@@ -201,8 +208,19 @@ class FNMeasure(ClassificationMetric):
         logger.info("Computing FN")
 
         prediction_labels, truth_labels = super()._get_labels(predictions, truth)
-        precision = prediction_labels.isin(truth_labels).sum() / len(prediction_labels)
-        recall = \
-            prediction_labels.isin(truth_labels).sum() / len(truth_labels)
 
-        return (1 + (self.__n ** 2)) * ((precision * recall) / ((self.__n ** 2) * precision + recall))
+        if len(prediction_labels) != 0:
+          precision = prediction_labels.isin(truth_labels).sum() / len(prediction_labels)
+        else:
+          precision = 0.0
+
+        if len(truth_labels) != 0:
+          recall = prediction_labels.isin(truth_labels).sum() / len(truth_labels)
+        else:
+          recall = 0.0
+
+        if precision != 0 and recall != 0:
+          f = (1 + (self.__n ** 2)) * ((precision * recall) / ((self.__n ** 2) * precision + recall))
+        else:
+          f = 0.0
+        return f

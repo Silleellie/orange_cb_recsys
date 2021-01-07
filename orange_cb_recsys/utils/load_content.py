@@ -25,7 +25,7 @@ def load_content_instance(directory: str, content_id: str) -> Content:
             content: Content = pickle.load(content_file)
         return content
     except FileNotFoundError:
-        return None
+        print(content_filename + " Not Found")
 
 
 def get_unrated_items(items_directory: str, ratings) -> List[Content]:
@@ -51,11 +51,13 @@ def get_unrated_items(items_directory: str, ratings) -> List[Content]:
     filename_list = [item_id for item_id in directory_filename_list if
                      item_id not in rated_items_filename_list]
 
+    intersection = [x for x in filename_list if x in directory_filename_list]
+    filename_list = intersection
+
     logger.info("Loading unrated items")
     unrated_items = [
         load_content_instance(items_directory, item_id)
         for item_id in filename_list]
-
     return unrated_items
 
 
@@ -81,6 +83,9 @@ def get_rated_items(items_directory, ratings) -> List[Content]:
     logger.info("Checking if rated")
     filename_list = [item_id for item_id in directory_filename_list if
                      item_id in rated_items_filename_list]
+
+    intersection = [x for x in filename_list if x in directory_filename_list]
+    filename_list = intersection
 
     filename_list.sort()
 

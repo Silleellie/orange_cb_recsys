@@ -1,3 +1,11 @@
+---
+# ARCHIVED! MOVED [HERE](https://github.com/swapUniba/ClayRS)
+
+The project has been renamed ***ClayRS*** and it is actively being developed on the **swapUniba organization**. Click the link above to be redirected 🤗 
+
+---
+
+
 ![Build Status](https://github.com/Silleellie/orange_cb_recsys/workflows/Build%20&%20Test%20&%20Push/badge.svg)&nbsp;&nbsp;[![Coverage Status](https://img.shields.io/coveralls/github/m3ttiw/orange_cb_recsys/master?logo=coveralls)](https://coveralls.io/github/m3ttiw/orange_cb_recsys?branch=master)&nbsp;&nbsp;[![Docker hub repo](https://img.shields.io/badge/docker-pull-blue.svg?logo=docker&logoColor=white)](https://hub.docker.com/r/silleellie/framework_dependencies)&nbsp;&nbsp;[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-382/)
 
 # Orange_cb_recsys
